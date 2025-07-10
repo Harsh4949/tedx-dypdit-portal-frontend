@@ -32,7 +32,12 @@ const OCRReader = () => {
   return (
     <div className="p-6 max-w-md mx-auto ">
       <h2 className="text-xl font-semibold mb-4">OCR Text Extractor</h2>
-      <input type="file" accept="image/*" onChange={handleImageChange} />
+
+    <form className="max-w-lg mx-auto">
+      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" htmlFor="user_avatar">Upload file</label>
+      <input className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="user_avatar_help" id="user_avatar" type="file" accept="image/*" onChange={handleImageChange} />
+    </form>
+      
       {image && (
         <div className="mt-4">
           <img src={image} alt="Selected" className="max-w-full h-auto rounded" />
@@ -51,6 +56,7 @@ const OCRReader = () => {
            <textarea
                 className="h-40 w-full resize-none overflow-y-scroll border p-2"
                 placeholder="Type something..."
+                class="w-full h-40 p-2 border rounded text-amber-50"
                 value={text}
                 >
             </textarea>
