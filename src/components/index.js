@@ -1,5 +1,5 @@
-import {OCRReader} from './RegistrationForm/OCRReader';
-import {ResistrationForm} from './/RegistrationForm/ResistrationForm';
+import OCRReader from './RegistrationForm/OCRReader';
+import ResistrationForm from './RegistrationForm/ResistrationForm';
 
 
 
