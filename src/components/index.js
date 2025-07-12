@@ -7,5 +7,5 @@ export {
 
     OCRReader,
     ResistrationForm,
-    
+
 }
