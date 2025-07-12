@@ -31,7 +31,8 @@ const ResistrationForm = () => {
     setSubmitted(false);
     setError('');
     try {
-      const res = await axios.post('http://localhost:3000/queue-submitted', formData);
+      const res = await axios.post('http://localhost:3000/queue-submitted-form', formData);
+      
       console.log(res.data);
       setSubmitted(true);
     } catch (err) {
