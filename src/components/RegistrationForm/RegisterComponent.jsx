@@ -8,6 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { motion } from "framer-motion";
 import MemberDetails from "./MemberDetails";
 import tedx_logo from '../../assets/tedx_logo.jpg';
+import axios from "axios";
 
 export default function RegisterComponent() {
   const [type, setType] = useState("solo");
@@ -42,11 +43,52 @@ export default function RegisterComponent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleRegister = () => {
-    if (validateForm()) {
-      console.log("Form submitted", formData);
+  const handleRegister = async () => {
+
+  if (!validateForm()) return;
+
+  try {
+
+    const dummyScreenshotURL = "https://via.placeholder.com/300"; 
+    const dummyRefNo = "TXN" + Math.floor(100000000000 + Math.random() * 900000000000);
+
+
+    const payload = {
+      refNo: dummyRefNo,
+      name: formData.name,
+      email: formData.email,
+      contact: formData.contact,
+      college: formData.college,
+      department: formData.department,
+      type: type,
+      groupMembers: [],
+      paymentScreenshotURL: dummyScreenshotURL,
+      submittedAt: new Date(),
+    };
+
+    // 4. Add groupMembers if duo/trio
+
+    if (type !== "solo") {
+      const members = formData.members
+        .slice(0, type === "duo" ? 1 : 2)
+        .map((member) => ({
+          ...member,
+        }));
+      payload.groupMembers.push(...members);
     }
-  };
+
+    // 5. POST to API
+    const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+    if (res.status === 201 || res.status === 200) {
+      alert("Form submitted successfully");
+    } else {
+      alert("Failed to submit form.");
+    }
+  } catch (error) {
+    console.error("Submit error:", error);
+    alert("Error submitting form.");
+  }
+};
 
   const handleChange = (key, value) => {
     setFormData({ ...formData, [key]: value });

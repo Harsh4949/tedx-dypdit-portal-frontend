@@ -22,7 +22,7 @@ export default function MemberDetails({ id, onChange, error }) {
       <Input placeholder="Department" className="bg-white/90  text-black text-4xl font-bold" 
       onChange={e => onChange('department', e.target.value)} />
       
-      {error && <p className="text-red-500 text-sm  text-black text-4xl font-bold">{error}</p>}
+      {error && <p className="text-red-500 text-sm text-black text-4xl font-bold">{error}</p>}
     </div>
   );
 }
