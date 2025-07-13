@@ -222,9 +222,9 @@ export default function RegisterComponent() {
               <SelectValue placeholder="Participation Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="solo">Solo</SelectItem>
-              <SelectItem value="duo">Duo</SelectItem>
-              <SelectItem value="trio">Trio</SelectItem>
+              <SelectItem className="bg-white/90 text-black text-lg font-medium" value="solo">Solo</SelectItem>
+              <SelectItem className="bg-white/90 text-black text-lg font-medium" value="duo">Duo</SelectItem>
+              <SelectItem className="bg-white/90 text-black text-lg font-medium" value="trio">Trio</SelectItem>
             </SelectContent>
           </Select>
 
