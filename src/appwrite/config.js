@@ -15,18 +15,22 @@ export class Service{
     }
 
 
-    async uploadFile(file){
-        try {
-            return await this.bucket.createFile(
-                conf.appwriteBucketId,
-                ID.unique(),
-                file
-            )
-        } catch (error) {
-            console.log("Appwrite serive :: uploadFile :: error", error);
-            return false
+    async uploadFile(file) {
+    try {
+        return await this.bucket.createFile(
+            conf.appwriteBucketId,
+            ID.unique(),
+            file
+        );
+    } catch (error) {
+        console.error("Appwrite service :: uploadFile :: error", error);
+        if (error.response) {
+            console.error('Error response:', error.response);
         }
+        return false;
     }
+    }
+
 
     async deleteFile(fileId){
         try {
