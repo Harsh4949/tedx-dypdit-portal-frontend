@@ -91,7 +91,7 @@ export default function RegisterComponent() {
 
     // 5. POST to API
     // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
-    const res = await axios.post("tedx-dypdit-portal-backend/queue-submitted-forms", payload);
+    const res = await axios.post("https://tedx-dypdit-portal-backend.railway.internal/queue-submitted-forms", payload);
 
     if (res.status === 201 || res.status === 200) {
       alert("Form submitted successfully");
