@@ -96,8 +96,6 @@ export default function RegisterComponent() {
 
     const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
 
-    setScreenshot(file);
-
     if (res.status === 201 || res.status === 200) {
       alert("Form submitted successfully");
     } else {
@@ -127,6 +125,7 @@ export default function RegisterComponent() {
     setErrors({ ...errors, screenshot: "File size must be less than 2MB." });
     return;
   } else {
+    setScreenshot(file);
     setErrors({ ...errors, screenshot: null });
   }
 
@@ -158,129 +157,128 @@ export default function RegisterComponent() {
 
   const memberCount = type === "duo" ? 1 : type === "trio" ? 2 : 0;
 
- return (
-  <div className="min-h-screen bg-black text-white px-4 md:px-8 py-6">
-    {/* Header */}
-    <div className="flex justify-between items-center mb-6">
-      <img src={tedx_logo} alt="TEDx Logo" className="h-10" />
-      <Button
-        variant="ghost"
-        className="text-white border border-white hover:bg-white hover:text-black"
-      >
-        <ShieldCheck className="mr-2" /> Admin
-      </Button>
-    </div>
-
-    {/* Form Container */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="max-w-4xl mx-auto w-full"
-    >
-      <Card className="bg-[#121212] border border-[#D4AF37]/30 shadow-[0_0_20px_#d4af3740] rounded-lg overflow-hidden">
-        <CardContent className="p-8 grid gap-6">
-          <h1 className="text-3xl font-bold text-[#D4AF37] mb-4 mt-5 tracking-tight">
-            Every Scar Has a Story
-          </h1>
-
-          {/* Form Fields */}
-          <Input
-            placeholder="Full Name"
-            className="bg-white/90 text-black text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
-            onChange={e => handleChange('name', e.target.value)}
-          />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-
-          <Input
-            type="email"
-            placeholder="Email"
-            className="bg-white/90 text-black text-lg font-medium"
-            onChange={e => handleChange('email', e.target.value)}
-          />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-
-          <Input
-            type="tel"
-            placeholder="Contact Number"
-            className="bg-white/90 text-black text-lg font-medium"
-            onChange={e => handleChange('contact', e.target.value)}
-          />
-          {errors.contact && <p className="text-red-500 text-sm">{errors.contact}</p>}
-
-          <Input
-            placeholder="College Name"
-            className="bg-white/90 text-black text-lg font-medium"
-            onChange={e => handleChange('college', e.target.value)}
-          />
-          {errors.college && <p className="text-red-500 text-sm">{errors.college}</p>}
-
-          <Input
-            placeholder="Department"
-            className="bg-white/90 text-black text-lg font-medium"
-            onChange={e => handleChange('department', e.target.value)}
-          />
-          {errors.department && <p className="text-red-500 text-sm">{errors.department}</p>}
-
-          {/* Select Type */}
-          <Select onValueChange={setType} defaultValue="solo">
-            <SelectTrigger className="bg-white/90 text-black text-lg font-medium">
-              <SelectValue placeholder="Participation Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem className="bg-white/90 text-black text-lg font-medium" value="solo">Solo</SelectItem>
-              <SelectItem className="bg-white/90 text-black text-lg font-medium" value="duo">Duo</SelectItem>
-              <SelectItem className="bg-white/90 text-black text-lg font-medium" value="trio">Trio</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Extra Members (if duo/trio) */}
-          {[...Array(memberCount)].map((_, i) => (
-            <MemberDetails
-              key={i}
-              id={i + 1}
-              onChange={(key, value) => handleMemberChange(i, key, value)}
-              error={errors[`member-${i}`]}
-            />
-          ))}
-
-          {/* Upload Screenshot */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-[#D4AF37]">
-              Upload Payment Screenshot
-            </label>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleScreenshotChange(e.target.files[0])}
-              className="bg-white/80 text-black text-lg font-medium"
-            />
-            {errors.screenshot && <p className="text-red-500 text-sm">{errors.screenshot}</p>}
-            <p className="text-sm text-gray-400 flex items-center gap-1">
-              Upload clear screenshot. <UploadGuideModal />
-            </p>
-          </div>
-
-          {/* Register Button */}
+    return (
+      <div className="min-h-screen bg-black text-white px-4 md:px-8 py-6">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <img src={tedx_logo} alt="TEDx Logo" className="h-10" />
           <Button
-            onClick={handleRegister}
-            className="bg-gradient-to-r from-[#E62B1E] to-[#D4AF37] hover:opacity-90 transition text-white font-bold text-lg w-full sm:w-auto"
+            variant="ghost"
+            className="text-white border border-white hover:bg-white hover:text-black"
           >
-            Register
+            <ShieldCheck className="mr-2" /> Admin
           </Button>
+        </div>
 
-          {/* Transaction ID Output */}
-          {text && (
-            <div className="mt-4 p-4 bg-[#1c1c1c] border-l-4 border-[#D4AF37] rounded shadow">
-              <p className="text-sm text-gray-400">Transaction ID (Ref No.):</p>
-              <p className="text-lg font-semibold text-white">{text}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </motion.div>
-  </div>
-);
+        {/* Form Container */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto w-full"
+        >
+          <Card className="bg-[#121212] border border-[#D4AF37]/30 shadow-[0_0_20px_#d4af3740] rounded-lg overflow-hidden">
+            <CardContent className="p-8 grid gap-6">
+              <h1 className="text-3xl font-bold text-[#D4AF37] mb-4 mt-5 tracking-tight">
+                Every Scar Has a Story
+              </h1>
 
+              {/* Form Fields */}
+              <Input
+                placeholder="Full Name"
+                className="bg-white/90 text-black text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
+                onChange={e => handleChange('name', e.target.value)}
+              />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
 
-}
+              <Input
+                type="email"
+                placeholder="Email"
+                className="bg-white/90 text-black text-lg font-medium"
+                onChange={e => handleChange('email', e.target.value)}
+              />
+              {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+
+              <Input
+                type="tel"
+                placeholder="Contact Number"
+                className="bg-white/90 text-black text-lg font-medium"
+                onChange={e => handleChange('contact', e.target.value)}
+              />
+              {errors.contact && <p className="text-red-500 text-sm">{errors.contact}</p>}
+
+              <Input
+                placeholder="College Name"
+                className="bg-white/90 text-black text-lg font-medium"
+                onChange={e => handleChange('college', e.target.value)}
+              />
+              {errors.college && <p className="text-red-500 text-sm">{errors.college}</p>}
+
+              <Input
+                placeholder="Department"
+                className="bg-white/90 text-black text-lg font-medium"
+                onChange={e => handleChange('department', e.target.value)}
+              />
+              {errors.department && <p className="text-red-500 text-sm">{errors.department}</p>}
+
+              {/* Select Type */}
+              <Select onValueChange={setType} defaultValue="solo">
+                <SelectTrigger className="bg-white/90 text-black text-lg font-medium">
+                  <SelectValue placeholder="Participation Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem className="bg-white/90 text-black text-lg font-medium" value="solo">Solo</SelectItem>
+                  <SelectItem className="bg-white/90 text-black text-lg font-medium" value="duo">Duo</SelectItem>
+                  <SelectItem className="bg-white/90 text-black text-lg font-medium" value="trio">Trio</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Extra Members (if duo/trio) */}
+              {[...Array(memberCount)].map((_, i) => (
+                <MemberDetails
+                  key={i}
+                  id={i + 1}
+                  onChange={(key, value) => handleMemberChange(i, key, value)}
+                  error={errors[`member-${i}`]}
+                />
+              ))}
+
+              {/* Upload Screenshot */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-[#D4AF37]">
+                  Upload Payment Screenshot
+                </label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleScreenshotChange(e.target.files[0])}
+                  className="bg-white/80 text-black text-lg font-medium"
+                />
+                {errors.screenshot && <p className="text-red-500 text-sm">{errors.screenshot}</p>}
+                <p className="text-sm text-gray-400 flex items-center gap-1">
+                  Upload clear screenshot. <UploadGuideModal />
+                </p>
+              </div>
+
+              {/* Register Button */}
+              <Button
+                onClick={handleRegister}
+                className="bg-gradient-to-r from-[#E62B1E] to-[#D4AF37] hover:opacity-90 transition text-white font-bold text-lg w-full sm:w-auto"
+              >
+                Register
+              </Button>
+
+              {/* Transaction ID Output */}
+              {text && (
+                <div className="mt-4 p-4 bg-[#1c1c1c] border-l-4 border-[#D4AF37] rounded shadow">
+                  <p className="text-sm text-gray-400">Transaction ID (Ref No.):</p>
+                  <p className="text-lg font-semibold text-white">{text}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+
+  }
