@@ -12,6 +12,7 @@ import axios from "axios";
 import Tesseract from 'tesseract.js';
 import UploadGuideModal from './UploadGuideModal';
 import service from "../../appwrite/config.js"; 
+import conf from '../../conf/conf.js';
 
 export default function RegisterComponent() {
 
@@ -88,10 +89,14 @@ export default function RegisterComponent() {
         }));
       payload.groupMembers.push(...members);
     }
+    
 
     // 5. POST to API
     // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
-    const res = await axios.post("https://tedx-dypdit-portal-backend.railway.internal/queue-submitted-forms", payload);
+
+    const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
+
+    setScreenshot(file);
 
     if (res.status === 201 || res.status === 200) {
       alert("Form submitted successfully");
@@ -122,7 +127,6 @@ export default function RegisterComponent() {
     setErrors({ ...errors, screenshot: "File size must be less than 2MB." });
     return;
   } else {
-    setScreenshot(file);
     setErrors({ ...errors, screenshot: null });
   }
 
