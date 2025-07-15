@@ -94,13 +94,14 @@ export default function RegisterComponent() {
     // 5. POST to API
     // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
-    const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
-
-    if (res.status === 201 || res.status === 200) {
-      alert("Form submitted successfully");
-    } else {
-      alert("Failed to submit form.");
-    }
+      const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
+      
+      if (res.status === 201 || res.status === 200) {
+        alert("Form submitted successfully");
+      } else {
+        alert("Failed to submit form.");
+      }
+      
   } catch (error) {
     console.error("Submit error:", error);
     alert("Error submitting form.");
