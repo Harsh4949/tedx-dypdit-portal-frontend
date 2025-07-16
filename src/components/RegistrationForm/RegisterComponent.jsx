@@ -84,15 +84,26 @@ export default function RegisterComponent() {
     // 4. Add groupMembers if duo/trio
 
     if (type !== "solo") {
-      const members = formData.members
-        .slice(0, type === "duo" ? 1 : 2)
-        .map((member) => ({
-          ...member,
-        }));
-      payload.groupMembers.push(...members);
+      const count = type === 'duo' ? 1 : 2;
+
+      for (let i = 0; i <= count; i++) {
+        
+        const m = formData.members[i];
+        if (m.name && m.email && m.contact && m.college && m.department) {
+
+          payload.groupMembers.push({
+            name: m.name,
+            email: m.email,
+            contact: m.contact,
+            college: m.college,
+            department: m.department,
+          });
+        }
+}
+
     }
 
-
+    console.log("Payload:", payload);
     // 5. POST to API
      const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
@@ -240,9 +251,9 @@ export default function RegisterComponent() {
               {[...Array(memberCount)].map((_, i) => (
                 <MemberDetails
                   key={i}
-                  id={i }
+                  id={i}
                   onChange={(key, value) => handleMemberChange(i, key, value)}
-                  error={errors[`member-${i}`]}
+                  error={errors[`member-${i+1}`]}
                 />
               ))}
 
