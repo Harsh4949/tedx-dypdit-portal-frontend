@@ -53,6 +53,7 @@ export default function RegisterComponent() {
 
   if (!validateForm()) return;
 
+  console.log("Form Data:", formData);
   try {
 
      // 1. Upload image to Appwrite
@@ -62,9 +63,10 @@ export default function RegisterComponent() {
       return;
     }
 
+
     const uploadedURL = service.getFilePreview(uploaded.$id); // <-- use your method
 
-    const refNo = text || "TXN" + Math.floor(100000000000 + Math.random() * 900000000000);
+    const refNo = text;
 
     const payload = {
       refNo: refNo,
@@ -89,12 +91,12 @@ export default function RegisterComponent() {
         }));
       payload.groupMembers.push(...members);
     }
-    
+
 
     // 5. POST to API
-    // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+     const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
-      const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
+      // const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
       
       if (res.status === 201 || res.status === 200) {
         alert("Form submitted successfully");
@@ -238,7 +240,7 @@ export default function RegisterComponent() {
               {[...Array(memberCount)].map((_, i) => (
                 <MemberDetails
                   key={i}
-                  id={i + 1}
+                  id={i }
                   onChange={(key, value) => handleMemberChange(i, key, value)}
                   error={errors[`member-${i}`]}
                 />
