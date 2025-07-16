@@ -87,7 +87,7 @@ export default function RegisterComponent() {
       const count = type === 'duo' ? 1 : 2;
 
       for (let i = 0; i <= count; i++) {
-        
+
         const m = formData.members[i];
         if (m.name && m.email && m.contact && m.college && m.department) {
 
@@ -99,7 +99,7 @@ export default function RegisterComponent() {
             department: m.department,
           });
         }
-}
+      }
 
     }
 
