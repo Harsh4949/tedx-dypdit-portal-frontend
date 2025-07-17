@@ -35,15 +35,15 @@ export default function RegisterComponent() {
     if (!formData.department) errs.department = "Department is required.";
     if (!screenshot) errs.screenshot = "Payment screenshot is required.";
 
-    if (type !== 'solo') {
-      const count = type === 'duo' ? 1 : 2;
-      for (let i = 0; i <= count; i++) {
-        const m = formData.members[i];
-        if (!m.name || !m.email || !m.contact || !m.college || !m.department) {
-          errs[`member-${i}`] = `All fields for Member ${i + 1} are required.`;
-        }
-      }
-    }
+    // if (type !== 'solo') {
+    //   const count = type === 'duo' ? 1 : 2;
+    //   for (let i = 0; i <= count; i++) {
+    //     const m = formData.members[i];
+    //     if (!m.name || !m.email || !m.contact || !m.college || !m.department) {
+    //       errs[`member-${i}`] = `All fields for Member ${i + 1} are required.`;
+    //     }
+    //   }
+    // }
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -53,7 +53,6 @@ export default function RegisterComponent() {
 
   if (!validateForm()) return;
 
-  console.log("Form Data:", formData);
   try {
 
      // 1. Upload image to Appwrite
@@ -103,7 +102,6 @@ export default function RegisterComponent() {
 
     }
 
-    console.log("Payload:", payload);
     // 5. POST to API
      const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
