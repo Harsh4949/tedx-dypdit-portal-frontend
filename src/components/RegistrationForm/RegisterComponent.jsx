@@ -13,6 +13,7 @@ import Tesseract from 'tesseract.js';
 import UploadGuideModal from './UploadGuideModal';
 import service from "../../appwrite/config.js"; 
 import conf from '../../conf/conf.js';
+import qrCode from '../../assets/qr_code.jpg'; 
 
 export default function RegisterComponent() {
 
@@ -103,9 +104,9 @@ export default function RegisterComponent() {
     }
 
     // 5. POST to API
-    //  const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+      // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
-      const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
+       const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
       
       if (res.status === 201 || res.status === 200) {
         alert("Form submitted successfully");
@@ -254,6 +255,18 @@ export default function RegisterComponent() {
                   error={errors[`member-${i+1}`]}
                 />
               ))}
+
+
+              {/* QR Code Section */}
+                <div className="flex flex-col gap-2 mb-6">
+                  <label className="text-sm font-semibold text-[#D4AF37]">Scan this QR Code</label>
+                  <div className="flex justify-center">
+                    <img src={qrCode} alt="QR Code" className="w-52 h-52 object-contain border-2 border-[#D4AF37] rounded-lg shadow-md" />
+                  </div>
+                  <p className="text-sm text-gray-400 text-center mt-2">
+                    Scan to complete the payment and verify your registration.
+                  </p>
+                </div>
 
               {/* Upload Screenshot */}
               <div className="flex flex-col gap-2">
