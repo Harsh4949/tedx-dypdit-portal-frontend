@@ -63,16 +63,16 @@ export default function RegisterComponent() {
 
 
   const handleRegister = async () => {
-     if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  try {
+    try {
 
-     // 1. Upload image to Appwrite
-    const uploaded = await service.uploadFile(screenshot);
-    if (!uploaded || !uploaded.$id) {
-      alert("Image upload failed.");
-      return;
-    }
+      // 1. Upload image to Appwrite
+      const uploaded = await service.uploadFile(screenshot);
+      if (!uploaded || !uploaded.$id) {
+        alert("Image upload failed.");
+        return;
+      }
 
 
     const uploadedURL = service.getFilePreview(uploaded.$id); // <-- use your method
@@ -113,12 +113,13 @@ export default function RegisterComponent() {
       }
 
     // 5. POST to API
-    // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+    //  const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
        const res = await axios.post(api.apiUrl + "/queue-submitted-forms", payload);
 
       if (res.status === 201 || res.status === 200) {
         alert("Form submitted successfully");
+        window.location.reload(); // Refresh the page
       } else {
         alert("Failed to submit form.");
       }
