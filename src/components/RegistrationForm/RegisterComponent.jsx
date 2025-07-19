@@ -113,9 +113,9 @@ export default function RegisterComponent() {
       }
 
     // 5. POST to API
-     const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+    // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
-      // const res = await axios.post(api.apiUrl + "/queue-submitted-forms", payload);
+       const res = await axios.post(api.apiUrl + "/queue-submitted-forms", payload);
 
       if (res.status === 201 || res.status === 200) {
         alert("Form submitted successfully");
@@ -257,17 +257,7 @@ export default function RegisterComponent() {
                 </SelectContent>
               </Select>
 
-              {/* Extra Members (if duo/trio)
-              {[...Array(memberCount)].map((_, i) => (
-                <MemberDetails
-                  key={i}
-                  id={i+1}
-                  onChange={(key, value) => handleMemberChange(i+1, key, value)}
-                  error={errors[`member-${i+1}`]}
-                />
-              ))}
-
-               */}
+              {/* Extra Members (if duo/trio)*/}
 
               {[...Array(memberCount)].map((_, i) => (
                 <MemberDetails
