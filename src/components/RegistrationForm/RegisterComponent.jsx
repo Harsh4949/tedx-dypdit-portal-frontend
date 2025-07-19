@@ -1,9 +1,9 @@
 // File: src/components/RegistrationForm/RegisterComponent.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShieldCheck } from "lucide-react";
+import { QrCode, ShieldCheck } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import MemberDetails from "./MemberDetails";
@@ -12,8 +12,8 @@ import axios from "axios";
 import Tesseract from 'tesseract.js';
 import UploadGuideModal from './UploadGuideModal';
 import service from "../../appwrite/config.js"; 
-import conf from '../../conf/conf.js';
-import qrCode from '../../assets/qr_code.jpg'; 
+import api from '../../conf/api.js';
+import{ qr_solo, qr_duo,qr_trio} from '../../assets/exportQR.js';
 
 export default function RegisterComponent() {
 
@@ -21,14 +21,23 @@ export default function RegisterComponent() {
   const [screenshot, setScreenshot] = useState(null);
   const [errors, setErrors] = useState({});
   const [text, setText] = useState('');
+  const [qrcode, setQrCode] = useState(qr_solo);
   const [formData, setFormData] = useState({
     name: '', email: '', contact: '', college: '', department: '',
     members: [{}, {}, {}] // placeholders for duo/trio
   });
 
+
+    useEffect(() => {
+      if (type === "solo") setQrCode(qr_solo);
+      else if (type === "duo") setQrCode(qr_duo);
+      else if (type === "trio") setQrCode(qr_trio);
+    }, [type]);
+
   const validateForm = () => {
     let errs = {};
 
+    // Validate main user
     if (!formData.name) errs.name = "Name is required.";
     if (!formData.email) errs.email = "Email is required.";
     if (!formData.contact) errs.contact = "Contact is required.";
@@ -36,23 +45,25 @@ export default function RegisterComponent() {
     if (!formData.department) errs.department = "Department is required.";
     if (!screenshot) errs.screenshot = "Payment screenshot is required.";
 
-    // if (type !== 'solo') {
-    //   const count = type === 'duo' ? 1 : 2;
-    //   for (let i = 0; i <= count; i++) {
-    //     const m = formData.members[i];
-    //     if (!m.name || !m.email || !m.contact || !m.college || !m.department) {
-    //       errs[`member-${i}`] = `All fields for Member ${i + 1} are required.`;
-    //     }
-    //   }
-    // }
+    if (type !== 'solo') {
+      const extraMembersCount = type === 'duo' ? 1 : 2; // number of extra members
+
+      for (let i = 0; i < extraMembersCount; i++) {
+        const m = formData.members[i];
+        if (!m || !m.name || !m.email || !m.contact || !m.college || !m.department) {
+          errs[`member-${i}`] = `All fields for Member ${i + 2} are required.`; 
+          // i+2 because main user is member 1, members array start at extra members from 2 onwards
+        }
+      }
+    }
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleRegister = async () => {
 
-  if (!validateForm()) return;
+  const handleRegister = async () => {
+     if (!validateForm()) return;
 
   try {
 
@@ -83,31 +94,29 @@ export default function RegisterComponent() {
 
     // 4. Add groupMembers if duo/trio
 
-    if (type !== "solo") {
-      const count = type === 'duo' ? 1 : 2;
+   // payload groupMembers
+      if (type !== "solo") {
+        const extraMembersCount = type === 'duo' ? 1 : 2;
 
-      for (let i = 0; i <= count; i++) {
-
-        const m = formData.members[i];
-        if (m.name && m.email && m.contact && m.college && m.department) {
-
-          payload.groupMembers.push({
-            name: m.name,
-            email: m.email,
-            contact: m.contact,
-            college: m.college,
-            department: m.department,
-          });
+        for (let i = 0; i < extraMembersCount; i++) {
+          const m = formData.members[i];
+          if (m && m.name && m.email && m.contact && m.college && m.department) {
+            payload.groupMembers.push({
+              name: m.name,
+              email: m.email,
+              contact: m.contact,
+              college: m.college,
+              department: m.department,
+            });
+          }
         }
       }
 
-    }
-
     // 5. POST to API
-      // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+     const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
-       const res = await axios.post(conf.apiUrl + "/queue-submitted-forms", payload);
-      
+      // const res = await axios.post(api.apiUrl + "/queue-submitted-forms", payload);
+
       if (res.status === 201 || res.status === 200) {
         alert("Form submitted successfully");
       } else {
@@ -167,8 +176,7 @@ export default function RegisterComponent() {
   }
   };
 
-
-  const memberCount = type === "duo" ? 1 : type === "trio" ? 2 : 0;
+    const memberCount = type === "duo" ? 1 : type === "trio" ? 2 : 0;
 
     return (
       <div className="min-h-screen bg-black text-white px-4 md:px-8 py-6">
@@ -235,7 +243,10 @@ export default function RegisterComponent() {
               {errors.department && <p className="text-red-500 text-sm">{errors.department}</p>}
 
               {/* Select Type */}
-              <Select onValueChange={setType} defaultValue="solo">
+             <Select
+                value={type || "solo"}
+                onValueChange={setType}
+              >
                 <SelectTrigger className="bg-white/90 text-black text-lg font-medium">
                   <SelectValue placeholder="Participation Type" />
                 </SelectTrigger>
@@ -246,13 +257,24 @@ export default function RegisterComponent() {
                 </SelectContent>
               </Select>
 
-              {/* Extra Members (if duo/trio) */}
+              {/* Extra Members (if duo/trio)
               {[...Array(memberCount)].map((_, i) => (
                 <MemberDetails
                   key={i}
-                  id={i}
-                  onChange={(key, value) => handleMemberChange(i, key, value)}
+                  id={i+1}
+                  onChange={(key, value) => handleMemberChange(i+1, key, value)}
                   error={errors[`member-${i+1}`]}
+                />
+              ))}
+
+               */}
+
+              {[...Array(memberCount)].map((_, i) => (
+                <MemberDetails
+                  key={i}
+                  id={i + 2} // member id to display (main user is 1)
+                  onChange={(key, value) => handleMemberChange(i, key, value)} // pass index i (starting at 0)
+                  error={errors[`member-${i}`]}
                 />
               ))}
 
@@ -261,7 +283,7 @@ export default function RegisterComponent() {
                 <div className="flex flex-col gap-2 mb-6">
                   <label className="text-sm font-semibold text-[#D4AF37]">Scan this QR Code</label>
                   <div className="flex justify-center">
-                    <img src={qrCode} alt="QR Code" className="w-52 h-52 object-contain border-2 border-[#D4AF37] rounded-lg shadow-md" />
+                    <img src={qrcode} alt="QR Code" className="w-52 h-52 object-contain border-2 border-[#D4AF37] rounded-lg shadow-md" />
                   </div>
                   <p className="text-sm text-gray-400 text-center mt-2">
                     Scan to complete the payment and verify your registration.
@@ -287,6 +309,7 @@ export default function RegisterComponent() {
 
               {/* Register Button */}
               <Button
+               disabled={!type}
                 onClick={handleRegister}
                 className="bg-gradient-to-r from-[#E62B1E] to-[#D4AF37] hover:opacity-90 transition text-white font-bold text-lg w-full sm:w-auto"
               >
