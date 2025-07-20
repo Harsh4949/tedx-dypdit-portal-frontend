@@ -7,16 +7,17 @@ import { QrCode, ShieldCheck } from "lucide-react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { motion } from "framer-motion";
 import MemberDetails from "./MemberDetails";
-import tedx_logo from '../../assets/tedx_logo.jpg';
+import tedx_logo from '../../assets/tedxDYPDPU_logo.jpg';
 import axios from "axios";
 import Tesseract from 'tesseract.js';
 import UploadGuideModal from './UploadGuideModal';
 import service from "../../appwrite/config.js"; 
 import api from '../../conf/api.js';
 import{ qr_solo, qr_duo,qr_trio} from '../../assets/exportQR.js';
+import AdminPortal from '../AdminPortal/AdminPortal.jsx';
 
 export default function RegisterComponent() {
-
+  const [showAdminPortal, setShowAdminPortal] = useState(false); // Toggle state
   const [type, setType] = useState("solo");
   const [screenshot, setScreenshot] = useState(null);
   const [errors, setErrors] = useState({});
@@ -113,7 +114,7 @@ export default function RegisterComponent() {
       }
 
     // 5. POST to API
-    //  const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
+      // const res = await axios.post("http://localhost:3000/queue-submitted-forms", payload);
 
        const res = await axios.post(api.apiUrl + "/queue-submitted-forms", payload);
 
@@ -179,6 +180,8 @@ export default function RegisterComponent() {
 
     const memberCount = type === "duo" ? 1 : type === "trio" ? 2 : 0;
 
+     if (showAdminPortal) return <AdminPortal onBack={() => setShowAdminPortal(false)} />;
+
     return (
       <div className="min-h-screen bg-black text-white px-4 md:px-8 py-6">
         {/* Header */}
@@ -187,6 +190,7 @@ export default function RegisterComponent() {
           <Button
             variant="ghost"
             className="text-white border border-white hover:bg-white hover:text-black"
+            onClick={() => setShowAdminPortal(true)} // Toggle Admin Portal
           >
             <ShieldCheck className="mr-2" /> Admin
           </Button>
