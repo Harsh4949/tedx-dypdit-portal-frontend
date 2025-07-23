@@ -1,44 +1,72 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Ticket, Check, X, Zap,ArrowLeft } from 'lucide-react';
+import { Ticket, Zap, ArrowLeft, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import io from 'socket.io-client';
 import tedxLogo from '../../assets/tedxDYPDPU_logo.jpg';
 
+// const SOCKET_URL = 'http://localhost:3000';
+const SOCKET_URL = 'https://tedx-dypdit-portal-backend.onrender.com';
+
 const AdminPortal = ({ onBack }) => {
-  const [ticketsSold, setTicketsSold] = useState(1000);
+  const [ticketsSold, setTicketsSold] = useState(0);
+  const [paymentEntries, setPaymentEntries] = useState([]);
+  const [registrationEntries, setRegistrationEntries] = useState([]);
+  const [pendingStudents, setPendingStudents] = useState([]);
+  const [data, setData] = useState({ ticketsSold: 0, paymentEntries: [], registrationEntries: [], tempRegistrationUnmatched: [] });
+
+  const [selectedItem, setSelectedItem] = useState(null); // 👈 Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);  // 👈 Modal state
+
   const canvasRef = useRef(null);
+  const socketRef = useRef(null);
+  const idleTimeoutRef = useRef(null);
 
-  // Mock Data
-  const [paymentEntries] = useState([
-    { id: 'TXN001' }, { id: 'TXN002' }, { id: 'TXN003' }, { id: 'TXN004' },
-    { id: 'TXN005' }, { id: 'TXN006' }, { id: 'TXN007' }, { id: 'TXN008' },
-  ]);
-  const [registrationEntries] = useState([
-    { id: 'REG123' }, { id: 'REG456' }, { id: 'REG789' }, { id: 'REG101' },
-    { id: 'REG202' }, { id: 'REG303' }, { id: 'REG404' }, { id: 'REG505' },
-  ]);
-  const [pendingStudents, setPendingStudents] = useState([
-    { id: 1, name: "John Smith", phone: "123-456-7890" },
-    { id: 2, name: "Emily Johnson", phone: "234-567-8901" },
-    { id: 3, name: "Michael Brown", phone: "345-678-9012" },
-    { id: 4, name: "Sarah Davis", phone: "456-789-0123" },
-  ]);
+  const connectSocket = () => {
+    socketRef.current = io(SOCKET_URL, { transports: ['websocket'] });
 
-  // Animate ticket count
+    socketRef.current.on('connect', () => console.log('✅ WebSocket Connected', socketRef.current.id));
+    socketRef.current.on('connect_error', (err) => console.error('❌ Connect Error:', err));
+    socketRef.current.on('queue_update', (data) => { console.log('Queue Update:', data); setData(data); });
+    resetIdleTimeout();
+  };
+
+  const resetIdleTimeout = () => {
+    if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+    idleTimeoutRef.current = setTimeout(() => {
+      console.log('Closing idle socket...');
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    }, 60000);
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTicketsSold(prev => prev + Math.floor(Math.random() * 10) + 1);
-    }, 5000);
-    return () => clearInterval(interval);
+    connectSocket();
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+      clearTimeout(idleTimeoutRef.current);
+    };
   }, []);
 
-  const handleApprove = (id) => setPendingStudents(prev => prev.filter(student => student.id !== id));
-  const handleRemove = (id) => setPendingStudents(prev => prev.filter(student => student.id !== id));
-  const handleMatch = () => alert("Matching Process Started!");
+ useEffect(() => {
+  if (data) {
+    setTicketsSold(data.ticketsSold || 0);
+    setPaymentEntries(Array.isArray(data.paymentEntries) ? data.paymentEntries : []);
+    setRegistrationEntries(Array.isArray(data.registrationEntries) ? data.registrationEntries : []);
+    setPendingStudents(Array.isArray(data.tempRegistrationUnmatched) ? data.tempRegistrationUnmatched : []);
+  }
+}, [data]);
 
-  // Gold Particle Background
+  const handleApprove = (id) => setPendingStudents((prev) => prev.filter((s) => s.id !== id));
+  const handleRemove = (id) => setPendingStudents((prev) => prev.filter((s) => s.id !== id));
+  const handleMatch = () => alert('Matching Process Started!');
+  const openModal = (item) => { setSelectedItem(item); setIsModalOpen(true); };
+  const closeModal = () => setIsModalOpen(false);
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     let particles = [];
     const particleCount = 60;
 
@@ -55,24 +83,24 @@ const AdminPortal = ({ onBack }) => {
         y: Math.random() * canvas.height,
         radius: Math.random() * 2 + 1,
         dx: (Math.random() - 0.5) * 0.5,
-        dy: (Math.random() - 0.5) * 0.5
+        dy: (Math.random() - 0.5) * 0.5,
       });
     }
 
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
+      particles.forEach((p) => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(212,175,55,0.9)";
-        ctx.shadowColor = "rgba(212,175,55,0.7)";
+        ctx.fillStyle = 'rgba(212,175,55,0.9)';
+        ctx.shadowColor = 'rgba(212,175,55,0.7)';
         ctx.shadowBlur = 8;
         ctx.fill();
       });
     };
 
     const updateParticles = () => {
-      particles.forEach(p => {
+      particles.forEach((p) => {
         p.x += p.dx;
         p.y += p.dy;
         if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
@@ -92,8 +120,7 @@ const AdminPortal = ({ onBack }) => {
 
   return (
     <div className="relative min-h-screen bg-black text-white font-inter overflow-hidden">
-      
-    {/* Back Button */}
+      {/* Back Button */}
       <div className="absolute top-4 left-4 z-50">
         <button
           onClick={onBack}
@@ -102,17 +129,15 @@ const AdminPortal = ({ onBack }) => {
           <ArrowLeft size={18} /> Back
         </button>
       </div>
-      
-      
+
       {/* Gold Particles */}
       <canvas ref={canvasRef} className="absolute inset-0 z-0" />
 
-      {/* Soft Gradient Overlay */}
+      {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black z-10"></div>
 
       {/* Main Content */}
       <div className="relative z-20 max-w-7xl mx-auto p-6 space-y-8">
-        {/* Floating TEDx Logo */}
         <div className="flex justify-center mb-6 relative z-30">
           <motion.img
             src={tedxLogo}
@@ -123,13 +148,11 @@ const AdminPortal = ({ onBack }) => {
           />
         </div>
 
-        {/* Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Section title="Payment Entries" data={paymentEntries} />
-          <Section title="Registration Entries" data={registrationEntries} />
+          <Section title="Payment Entries" data={paymentEntries} onRefClick={openModal} />
+          <Section title="Registration Entries" data={registrationEntries} onRefClick={openModal} />
         </div>
 
-        {/* Tickets Counter */}
         <div className="bg-[#121212]/80 rounded-lg shadow-lg p-8 text-center border border-red-500/50 backdrop-blur-md">
           <div className="flex items-center justify-center gap-4">
             <Ticket className="text-red-500" size={48} />
@@ -148,7 +171,6 @@ const AdminPortal = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Pending Students */}
         <div className="bg-[#121212]/80 rounded-lg shadow-lg p-6 border border-red-500/50 backdrop-blur-md">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-[#D4AF37]">Pending Approvals</h2>
@@ -161,9 +183,9 @@ const AdminPortal = ({ onBack }) => {
           </div>
           <div className="overflow-x-auto">
             <div className="flex gap-4 pb-4">
-              {pendingStudents.map(student => (
+              {pendingStudents.map((student, index) => (
                 <PendingCard
-                  key={student.id}
+                  key={student.id || index}
                   student={student}
                   onApprove={() => handleApprove(student.id)}
                   onRemove={() => handleRemove(student.id)}
@@ -173,22 +195,41 @@ const AdminPortal = ({ onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && selectedItem && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] text-white max-w-2xl w-full rounded-lg shadow-lg relative p-6 overflow-y-auto max-h-[80vh]">
+            <button
+              onClick={closeModal}
+              className="absolute top-3 right-3 text-gray-400 hover:text-white transition"
+            >
+              <X size={24} />
+            </button>
+            <h3 className="text-xl font-semibold text-[#D4AF37] mb-4">Entry Details</h3>
+            <pre className="text-sm bg-black/60 p-4 rounded-lg overflow-x-auto">
+              {JSON.stringify(selectedItem, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 // Sub-components
-const Section = ({ title, data }) => (
+const Section = ({ title, data, onRefClick }) => (
   <div className="bg-[#121212]/80 rounded-lg shadow-lg p-6 border border-red-500/40 backdrop-blur-md">
     <h2 className="text-xl font-bold text-[#D4AF37] mb-4">{title}</h2>
     <div className="grid grid-cols-3 md:grid-cols-4 gap-3 max-h-64 overflow-y-auto">
-      {data.map(item => (
-        <div
-          key={item.id}
+      {data.map((item, index) => (
+        <button
+          key={item.id || index}
+          onClick={() => onRefClick(item)}
           className="bg-black border border-[#D4AF37] rounded-lg p-3 text-center hover:scale-105 transform transition"
         >
-          <span className="text-sm font-medium text-white">{item.id}</span>
-        </div>
+          <span className="text-sm font-medium text-white">{item.refNo || item.id || 'N/A'}</span>
+        </button>
       ))}
     </div>
   </div>
@@ -205,8 +246,18 @@ const PendingCard = ({ student, onApprove, onRemove }) => (
     <p className="text-sm text-gray-300">{student.phone}</p>
     <p className="text-xs text-yellow-400 font-medium">Status: Pending</p>
     <div className="flex gap-2 mt-3">
-      <button onClick={onApprove} className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg">Approve</button>
-      <button onClick={onRemove} className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg">Remove</button>
+      <button
+        onClick={onApprove}
+        className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg"
+      >
+        Approve
+      </button>
+      <button
+        onClick={onRemove}
+        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg"
+      >
+        Remove
+      </button>
     </div>
   </motion.div>
 );
