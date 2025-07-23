@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import io from 'socket.io-client';
 import tedxLogo from '../../assets/tedxDYPDPU_logo.jpg';
 
-// const SOCKET_URL = 'http://localhost:3000';
-const SOCKET_URL = 'https://tedx-dypdit-portal-backend.onrender.com';
+ const SOCKET_URL = 'http://localhost:3000';
+// const SOCKET_URL = 'https://tedx-dypdit-portal-backend.onrender.com';
 
 const AdminPortal = ({ onBack }) => {
   const [ticketsSold, setTicketsSold] = useState(0);
@@ -22,7 +22,10 @@ const AdminPortal = ({ onBack }) => {
   const idleTimeoutRef = useRef(null);
 
   const connectSocket = () => {
-    socketRef.current = io(SOCKET_URL, { transports: ['websocket'] });
+    socketRef.current = io('https://tedx-dypdit-portal-backend-production.up.railway.app', {
+      transports: ['websocket'],
+      withCredentials: true
+    });
 
     socketRef.current.on('connect', () => console.log('✅ WebSocket Connected', socketRef.current.id));
     socketRef.current.on('connect_error', (err) => console.error('❌ Connect Error:', err));
