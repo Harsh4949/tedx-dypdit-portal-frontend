@@ -22,7 +22,7 @@ const AdminPortal = ({ onBack }) => {
   const idleTimeoutRef = useRef(null);
 
   const connectSocket = () => {
-    socketRef.current = io('https://tedx-dypdit-portal-backend-production.up.railway.app', {
+    socketRef.current = io(SOCKET_URL, {
       transports: ['websocket'],
       withCredentials: true
     });
@@ -41,14 +41,14 @@ const AdminPortal = ({ onBack }) => {
         socketRef.current.disconnect();
         socketRef.current = null;
       }
-    }, 60000);
+    }, 15 * 60 * 1000); // 15 minutes
   };
 
   useEffect(() => {
     connectSocket();
     return () => {
-      if (socketRef.current) socketRef.current.disconnect();
-      clearTimeout(idleTimeoutRef.current);
+      if (socketRef.current) socketRef.current.disconnect();  // close socket connection
+      clearTimeout(idleTimeoutRef.current);                   // clear idle timeout
     };
   }, []);
 
