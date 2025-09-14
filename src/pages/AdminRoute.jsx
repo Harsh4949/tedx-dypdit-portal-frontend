@@ -8,16 +8,18 @@ import { useNavigate } from "react-router-dom";
  const SOCKET_URL = 'http://localhost:3000';
 // const SOCKET_URL = 'https://tedx-dypdit-portal-backend.onrender.com';
 
+const ADMIN_PASSWORD = "tedx2025"; // Change this to your desired password
+
 const AdminPortal = ({ onBack }) => {
   const [ticketsSold, setTicketsSold] = useState(0);
   const [paymentEntries, setPaymentEntries] = useState([]);
   const [registrationEntries, setRegistrationEntries] = useState([]);
   const [pendingStudents, setPendingStudents] = useState([]);
   const [data, setData] = useState({ ticketsSold: 0, paymentEntries: [], registrationEntries: [], tempRegistrationUnmatched: [] });
-
+ const [authenticated, setAuthenticated] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // 👈 Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);  // 👈 Modal state
-
+ 
   const canvasRef = useRef(null);
   const socketRef = useRef(null);
   const idleTimeoutRef = useRef(null);
@@ -43,14 +45,14 @@ const AdminPortal = ({ onBack }) => {
         socketRef.current.disconnect();
         socketRef.current = null;
       }
-    }, 15 * 60 * 1000); // 15 minutes
+    }, 60000);
   };
 
   useEffect(() => {
     connectSocket();
     return () => {
-      if (socketRef.current) socketRef.current.disconnect();  // close socket connection
-      clearTimeout(idleTimeoutRef.current);                   // clear idle timeout
+      if (socketRef.current) socketRef.current.disconnect();
+      clearTimeout(idleTimeoutRef.current);
     };
   }, []);
 
@@ -123,12 +125,23 @@ const AdminPortal = ({ onBack }) => {
     return () => window.removeEventListener('resize', resizeCanvas);
   }, []);
 
+    if (!authenticated) {
+      const pwd = window.prompt("Enter admin password:");
+      if (pwd === ADMIN_PASSWORD) {
+        setAuthenticated(true);
+      } else {
+        alert("Incorrect password!");
+        navigate("/");
+      }
+      return null;
+    }
+  }
   return (
     <div className="relative min-h-screen bg-black text-white font-inter overflow-hidden">
       {/* Back Button */}
       <div className="absolute top-4 left-4 z-50">
         <button
-          onClick={() => { if (socketRef.current) socketRef.current.disconnect(); navigate('/'); }}
+          onClick={() => { if (socketRef.current) socketRef.current.disconnect(); navigate("/"); }}
           className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md transition"
         >
           <ArrowLeft size={18} /> Back

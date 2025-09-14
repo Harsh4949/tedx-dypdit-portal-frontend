@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import RegisterComponent from "./components/RegistrationForm/RegisterComponent";
+import AdminPortal from "./components/AdminPortal/AdminPortal";
 
 function App() {
-  const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    fetch("http://localhost:3000/api/test")
-      .then(res => res.json())
-      .then(data => setMsg(data.message));
-  }, []);
-
-  return <h1>{msg}</h1>;
+  return (
+    <BrowserRouter basename={import.meta.env.VITE_BASE_URL || "/tedx-dypdit-portal-frontend"}>
+      <Routes>
+        <Route path="/" element={<RegisterComponent />} />
+        <Route path="/admin" element={<AdminPortal />} />
+        {/* Add more routes as needed */}
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
