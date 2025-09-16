@@ -1,4 +1,4 @@
-import qr_solo from "./qr_code_solo.jpg";
+import qr_solo from "./qr_code_solo.png";
 import qr_duo from "./qr_code_duo.png";
 import qr_trio from "./qr_code_trio.png";
 
