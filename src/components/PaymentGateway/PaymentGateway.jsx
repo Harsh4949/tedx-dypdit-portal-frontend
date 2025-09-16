@@ -72,7 +72,7 @@ export default function UPIPaymentModal({ onClose, qrcode, totalCost, setIsPayme
             clearInterval(countdown);
             return 0;
           }
-          return prev - 5;
+          return prev - 1;
         });
       }, 1000);
       return () => clearInterval(countdown); // cleanup on unmount
@@ -113,7 +113,7 @@ export default function UPIPaymentModal({ onClose, qrcode, totalCost, setIsPayme
               <img
                 src={qrcode}
                 alt="QR Code"
-                className="w-40 h-40"
+                className="w-45 h-45 object-cover rounded-lg border border-gray-300"
               />
             </div>
 
